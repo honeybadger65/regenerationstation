@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Living Practice System</title>
+<style>
+:root {
+  --bg: #f4efe4;
+  --surface: #fbf8f1;
+  --text: #3a2e22;
+  --muted: #7a6b57;
+  --accent: #4b4f8f;
+  --accent-soft: #e4e5f1;
+  --border: #ddd0b8;
+  --warm: #b5473a;
+  --red: #b5473a;
+  --orange: #d08a3c;
+  --yellow: #d9b44a;
+  --green: #5f8f5a;
+  --sky: #7fb3c9;
+  --indigo: #4b4f8f;
+  color-scheme: light;
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #1d1f1a;
+    --surface: #262922;
+    --text: #e9e6dc;
+    --muted: #a9a793;
+    --accent: #8fbf98;
+    --accent-soft: #2f3d31;
+    --border: #3a3e34;
+    --warm: #d89a5e;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #1d1f1a;
+  --surface: #262922;
+  --text: #e9e6dc;
+  --muted: #a9a793;
+  --accent: #8fbf98;
+  --accent-soft: #2f3d31;
+  --border: #3a3e34;
+  --warm: #d89a5e;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: Georgia, "Times New Roman", serif;
+  line-height: 1.6;
+  min-height: 100%;
+}
+header {
+  padding: 0 1.25rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  background: linear-gradient(180deg, #ead9bd 0%, var(--bg) 100%);
+  text-align: center;
+}
+.weave {
+  height: 14px;
+  margin: 0 -1.25rem 1.25rem;
+  background:
+    repeating-linear-gradient(90deg, var(--red) 0 16.66%, var(--orange) 16.66% 33.33%, var(--yellow) 33.33% 50%, var(--green) 50% 66.66%, var(--sky) 66.66% 83.33%, var(--indigo) 83.33% 100%);
+  opacity: .85;
+}
+header h1 { margin: 0; font-size: 1.6rem; font-weight: normal; }
+header p { margin: .25rem 0 0; color: var(--muted); font-size: .95rem; }
+nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .4rem;
+  padding: .75rem 1.25rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: env(safe-area-inset-top, 0px);
+  background: var(--bg);
+  z-index: 5;
+}
+nav button {
+  font: inherit;
+  font-size: .9rem;
+  padding: .4rem .75rem;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  border-radius: 999px;
+  cursor: pointer;
+}
+nav button[aria-selected="true"] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
+}
+nav button::before {
+  content: "";
+  display: inline-block;
+  width: .55rem; height: .55rem;
+  border-radius: 50%;
+  margin-right: .4rem;
+  vertical-align: middle;
+  background: var(--pill, var(--accent));
+}
+nav button:nth-child(1) { --pill: var(--indigo); }
+nav button:nth-child(2) { --pill: var(--red); }
+nav button:nth-child(3) { --pill: var(--orange); }
+nav button:nth-child(4) { --pill: var(--yellow); }
+nav button:nth-child(5) { --pill: var(--green); }
+nav button:nth-child(6) { --pill: var(--sky); }
+nav button:nth-child(7) { --pill: var(--indigo); }
+.card { background-image: linear-gradient(180deg, rgba(180,140,90,.06), transparent 40%); }
+h2 { letter-spacing: .02em; }
+main { padding: 1.25rem; max-width: 760px; margin: 0 auto; }
+section.panel { display: none; }
+section.panel.active { display: block; }
+h2 { font-weight: normal; font-size: 1.3rem; margin: 0 0 .75rem; color: var(--accent); }
+h3 { font-weight: normal; font-size: 1.05rem; margin: 1.25rem 0 .4rem; }
+p { margin: .5rem 0; }
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.1rem;
+  margin: .75rem 0;
+}
+.layers { display: grid; gap: .6rem; }
+.layer { border-left: 4px solid var(--accent); }
+.layer.warm { border-left-color: var(--warm); }
+.phase-tabs { display: flex; gap: .4rem; flex-wrap: wrap; margin-bottom: .75rem; }
+.phase-tabs button {
+  font: inherit; font-size: .85rem; padding: .35rem .7rem;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text); border-radius: 6px; cursor: pointer;
+}
+.phase-tabs button[aria-selected="true"] {
+  border-color: var(--accent); color: var(--accent); background: var(--accent-soft);
+}
+.checklist label {
+  display: flex; gap: .6rem; align-items: flex-start;
+  padding: .55rem 0; border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.checklist label:last-child { border-bottom: none; }
+.checklist input { margin-top: .35rem; accent-color: var(--accent); }
+.checklist .done span { color: var(--muted); text-decoration: line-through; }
+.progress { font-size: .9rem; color: var(--muted); margin-bottom: .5rem; }
+.stages { display: grid; gap: .6rem; }
+.stage-item {
+  display: flex; gap: .75rem; align-items: flex-start;
+}
+.stage-num {
+  flex: 0 0 2rem; height: 2rem; border-radius: 50%;
+  background: var(--accent-soft); color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .95rem;
+}
+.flow {
+  display: flex; flex-direction: column; gap: .3rem; align-items: stretch;
+}
+.flow .step {
+  background: var(--accent-soft); border-radius: 8px; padding: .5rem .75rem; font-size: .95rem;
+}
+.flow .arrow { text-align: center; color: var(--muted); }
+ul { padding-left: 1.2rem; }
+li { margin: .3rem 0; }
+footer { color: var(--muted); font-size: .85rem; padding: 1.5rem 1.25rem 2rem; text-align: center; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>The Living Practice System</h1>
+  <p>Heart Learning · Weaving · Living Soil Practice · the Traveler's Journey</p>
+  <p style="font-style:italic">Living systems, not dead ones. Transformed, not transacted.</p>
+</header>
+<div class="weave" aria-hidden="true"></div>
+
+<nav role="tablist" aria-label="System sections">
+  <button role="tab" data-target="overview" aria-selected="true">Overview</button>
+  <button role="tab" data-target="team" aria-selected="false">Team</button>
+  <button role="tab" data-target="architecture" aria-selected="false">Architecture</button>
+  <button role="tab" data-target="journey" aria-selected="false">Traveler's Journey</button>
+  <button role="tab" data-target="money" aria-selected="false">Money & Information</button>
+  <button role="tab" data-target="stages" aria-selected="false">Stages & Risks</button>
+  <button role="tab" data-target="steps" aria-selected="false">First Steps</button>
+</nav>
+
+<main>
+
+  <section class="panel active" id="overview">
+    <h2>Purpose</h2>
+    <div class="card">
+      <p>The Living Practice System is an integrated model for Heart Learning, Weaving, and Living Soil Practice, linked by a shared exchange with regenerative travelers.</p>
+      <p>Its purpose is to let a village run all three strands, approve its own visitors, and train the next village without outside facilitators in the room.</p>
+    </div>
+    <h3>Core principle</h3>
+    <div class="card">
+      <p>The community holds authority at every node. Each strand, visit, and dataset passes through community decision points before it moves on.</p>
+    </div>
+    <h3>The exchange</h3>
+    <div class="card">
+      <p>Every visit is a two-way relationship. The visitor brings a skill, a question, or time spent learning, and receives the community's knowledge, craft, and care for the land in return.</p>
+      <p><em>Reciprocity is built into every exchange, and the transformation comes from what each person gives and receives, not from what is bought.</em></p>
+    </div>
+  </section>
+
+  <section class="panel" id="team">
+    <h2>Team and roles</h2>
+    <div class="card">
+      <h3 style="margin-top:0">Community development lead</h3>
+      <p>Owns listening circles, consent agreements, and the relationship with each village.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Learning designer</h3>
+      <p>Keeps the six bricks coherent across home, school, and craft circle while letting each community adapt them.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Agroecology practitioner (Corretah's role)</h3>
+      <p>Runs the Living Soil plots and sets soil-health indicators.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Craft economist</h3>
+      <p>Designs fair pricing, sales channels, and how Weaving income flows back to the women.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">MEL lead (Dr. Ringera or Dr. Paterra)</h3>
+      <p>Holds the evidence base and records community-chosen measures.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Exchange steward</h3>
+      <p>Manages visitor intake, pre-departure commitments, and the Rafiki Code in practice.</p>
+    </div>
+    <div class="card">
+      <h3 style="margin-top:0">Governance and finance lead</h3>
+      <p>Manages budgets, partner agreements, and the community's right to set limits.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="architecture">
+    <h2>Architecture</h2>
+    <div class="layers">
+      <div class="card layer">
+        <h3 style="margin-top:0">Community layer</h3>
+        <p>Each village has a small council of mothers, craftswomen, teachers, and Corretah's soil group. The council sets priorities, approves visitors, and owns the local version of the six bricks.</p>
+      </div>
+      <div class="card layer">
+        <h3 style="margin-top:0">Program layer</h3>
+        <p>Heart Learning, Weaving, and Living Soil Practice run as parallel strands with shared calendars, shared materials, and one monthly joint session. Each strand reports to the council, not to headquarters.</p>
+      </div>
+      <div class="card layer">
+        <h3 style="margin-top:0">Exchange layer</h3>
+        <p>Visitors enter through the exchange steward, who confirms consent, skills offered, and the community's terms before any trip is scheduled.</p>
+      </div>
+      <div class="card layer warm">
+        <h3 style="margin-top:0">Regenerative travel component</h3>
+        <p>The traveler's journey runs in three phases, set out in the next section.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="journey">
+    <h2>The Traveler's Journey</h2>
+    <div class="phase-tabs" role="tablist">
+      <button role="tab" data-phase="before" aria-selected="true">Before</button>
+      <button role="tab" data-phase="during" aria-selected="false">During</button>
+      <button role="tab" data-phase="after" aria-selected="false">After</button>
+    </div>
+    <div class="card" id="phase-body">
+      <p>The traveler completes a preparation process with the exchange steward. They describe what they bring and what they hope to receive, read the Rafiki Code, and sign the pre-departure commitment.</p>
+      <p>They learn the community's terms: how many visitors are welcome, when, and what is off limits to share. A traveler seeking to consume experience is gently redirected. A traveler who wants to contribute is matched to a strand.</p>
+    </div>
+  </section>
+
+  <section class="panel" id="money">
+    <h2>Money and information flow</h2>
+    <h3 style="margin-top:0">Money flow</h3>
+    <div class="card">
+      <div class="flow">
+        <div class="step">Visitor contributions, craft sales, partner funding</div>
+        <div class="arrow">↓</div>
+        <div class="step">Community account controlled by the council</div>
+        <div class="arrow">↓</div>
+        <div class="step">Costs paid from the account</div>
+        <div class="arrow">↓</div>
+        <div class="step">Quarterly public-facing ledger reviewed by the council</div>
+      </div>
+    </div>
+    <h3>Information flow</h3>
+    <div class="card">
+      <div class="flow">
+        <div class="step">Each strand records indicators in the community's words</div>
+        <div class="arrow">↓</div>
+        <div class="step">Community sees its own data first</div>
+        <div class="arrow">↓</div>
+        <div class="step">MEL lead translates into standard outcome measures</div>
+        <div class="arrow">↓</div>
+        <div class="step">Nothing leaves the village without council approval</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="stages">
+    <h2>Stages</h2>
+    <div class="stages">
+      <div class="card stage-item">
+        <div class="stage-num">1</div>
+        <div><h3 style="margin-top:0">One village</h3><p>All three strands running, with the council in place.</p></div>
+      </div>
+      <div class="card stage-item">
+        <div class="stage-num">2</div>
+        <div><h3 style="margin-top:0">Second village</h3><p>Mothers from the first village help train the new cohort.</p></div>
+      </div>
+      <div class="card stage-item">
+        <div class="stage-num">3</div>
+        <div><h3 style="margin-top:0">Regional network</h3><p>Councils share materials and learning but keep decisions local.</p></div>
+      </div>
+    </div>
+    <h2 style="margin-top:1.5rem">Risks to design for</h2>
+    <div class="card">
+      <ul>
+        <li>Visitor demand outpacing community capacity, which the council's power to limit intake addresses.</li>
+        <li>Craft income creating unequal benefit among women, which the craft economist monitors from the start.</li>
+        <li>Partner funding shaping priorities away from the community's own, which written agreements guard against.</li>
+        <li>Over-reliance on external facilitators, which the training cohort reduces over time.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="panel" id="steps">
+    <h2>First steps</h2>
+    <div class="card checklist" id="checklist">
+      <div class="progress" id="progress">0 of 5 complete</div>
+      <label><input type="checkbox"><span>Listening circles and consent agreements in the pilot village</span></label>
+      <label><input type="checkbox"><span>Council formed and the community account opened</span></label>
+      <label><input type="checkbox"><span>Heart Learning, Weaving, and Living Soil Practice launched in parallel</span></label>
+      <label><input type="checkbox"><span>Exchange steward trained and the traveler's journey piloted with one visitor</span></label>
+      <label><input type="checkbox"><span>Community review at twelve months</span></label>
+    </div>
+    <div class="card">
+      <p><em>The system is working when a village runs all three strands, approves its own visitors, and trains the next village without you in the room.</em></p>
+    </div>
+  </section>
+
+</main>
+
+<footer>Barbara Lee Joubert · Regeneration Station · Community, Conservation, Culture, Commerce</footer>
+
+<script>
+(function () {
+  // Tabs
+  var navButtons = document.querySelectorAll('nav [data-target]');
+  function show(id) {
+    document.querySelectorAll('section.panel').forEach(function (p) {
+      p.classList.toggle('active', p.id === id);
+    });
+    navButtons.forEach(function (b) {
+      b.setAttribute('aria-selected', String(b.dataset.target === id));
+    });
+    window.scrollTo(0, 0);
+  }
+  navButtons.forEach(function (b) {
+    b.addEventListener('click', function () { show(b.dataset.target); });
+  });
+
+  // Traveler's journey phases
+  var phases = {
+    before: [
+      'The traveler completes a preparation process with the exchange steward. They describe what they bring and what they hope to receive, read the Rafiki Code, and sign the pre-departure commitment.',
+      'They learn the community’s terms: how many visitors are welcome, when, and what is off limits to share. A traveler seeking to consume experience is gently redirected. A traveler who wants to contribute is matched to a strand.'
+    ],
+    during: [
+      'The traveler joins one strand as a learner and contributor, under the direction of the local council and facilitator. They listen first, then offer.',
+      'The community decides what stories, images, and knowledge leave the village. The traveler’s gift is recorded in the community’s own terms, not as a testimonial.'
+    ],
+    after: [
+      'The traveler commits to carry something forward, such as bringing Six Bricks into their own classroom, sharing Living Soil Practice with their network, or supporting craft circle sales.',
+      'The community receives a short report in its own words, and the exchange closes only when the council confirms it was reciprocal.'
+    ]
+  };
+  var phaseButtons = document.querySelectorAll('[data-phase]');
+  var phaseBody = document.getElementById('phase-body');
+  function showPhase(key) {
+    phaseBody.innerHTML = phases[key].map(function (t) { return '<p>' + t + '</p>'; }).join('');
+    phaseButtons.forEach(function (b) {
+      b.setAttribute('aria-selected', String(b.dataset.phase === key));
+    });
+  }
+  phaseButtons.forEach(function (b) {
+    b.addEventListener('click', function () { showPhase(b.dataset.phase); });
+  });
+
+  // First steps checklist (in memory only)
+  var boxes = document.querySelectorAll('#checklist input[type="checkbox"]');
+  var progress = document.getElementById('progress');
+  function updateProgress() {
+    var done = 0;
+    boxes.forEach(function (box) {
+      var label = box.closest('label');
+      label.classList.toggle('done', box.checked);
+      if (box.checked) done++;
+    });
+    progress.textContent = done + ' of ' + boxes.length + ' complete';
+  }
+  boxes.forEach(function (box) { box.addEventListener('change', updateProgress); });
+  updateProgress();
+})();
+</script>
+</body>
+</html>
